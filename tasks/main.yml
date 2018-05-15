@@ -1,0 +1,21 @@
+- set_fact:
+    name: "mem-chk"
+    bin_dir: "/usr/local/bin"
+    log_dir: "/var/log/mem-chk"
+
+- copy:
+    dest: "{{ bin_dir }}/{{ name }}"
+    mode: 0755
+    content: |
+      #!/bin/sh
+
+      LOG_DIR="{{ log_dir }}"
+
+      mkdir -p $LOG_DIR
+      ps -eo user,pcpu,pmem,pid,cmd | sort -r -n -k3 | head -10 > $LOG_DIR/`date +%F_%T`
+
+- cron:
+    name: "Костыль для мониторинга обжора по памяти"
+    minute: "*/10"
+    job: "{{ bin_dir }}/{{ name }}"
+
